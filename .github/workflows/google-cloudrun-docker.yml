@@ -99,8 +99,8 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}"
+          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest ./
+          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
 
       # # # END - Docker auth and build
 
