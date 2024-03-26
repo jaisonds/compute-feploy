@@ -93,13 +93,13 @@ jobs:
       # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
 
       ###working suhas
-      - name: Authorize Docker push
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+      # - name: Authorize Docker push
+      #   run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Build and Push Container
-        run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
+      # - name: Build and Push Container
+      #   run: |-
+      #     docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest ./
+      #     docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
 
       # # # END - Docker auth and build
 
