@@ -98,8 +98,8 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest"
+          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}" ./
+          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}"
 
       # # # END - Docker auth and build
 
@@ -114,8 +114,8 @@ jobs:
             sudo docker stop $(sudo docker ps -aq)
             sudo docker rm $(sudo docker ps -aq)
             sudo docker rmi $(sudo docker images -q)
-            sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
-            sudo docker run -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
+            sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
+            sudo docker run -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
           
         
 
