@@ -51,8 +51,7 @@ on:
 env:
   PROJECT_ID: prj-airindia-poc-01 # TODO: update Google Cloud project id
   GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
-  SERVICE: cloudrun	 # TODO: update Cloud Run service name
-  REGION: asia-south1 # TODO: update Cloud Run service region
+  #REGION: asia-south1 # TODO: update Cloud Run service region
 
 jobs:
   deploy:
