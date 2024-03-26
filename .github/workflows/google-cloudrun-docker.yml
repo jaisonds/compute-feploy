@@ -110,14 +110,14 @@ jobs:
           instance_name: 'docker-cicd'
           zone: 'asia-south1-c'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-          command: 'echo Hello world'
+          command: |
+            sudo docker stop $(sudo docker ps -aq)
+            sudo docker rm $(sudo docker ps -aq)
+            sudo docker rmi $(sudo docker images -q)
+            sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
+            sudo docker run -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:latest
+          
         
-
-    # # Example of using the output
-    # - id: 'test'
-    #   run: |-
-    #     echo '${{ steps.compute-ssh.outputs.stdout }}'
-    #     echo '${{ steps.compute-ssh.outputs.stderr }}'
 
       # # If required, use the Cloud Run url output in later steps
       - name: Show Output
