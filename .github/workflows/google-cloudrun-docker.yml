@@ -111,11 +111,13 @@ jobs:
           zone: 'asia-south1-c'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
           command: |
-            sudo docker stop $(sudo docker ps -aq)
-            sudo docker rm $(sudo docker ps -aq)
+            # sudo docker stop $(sudo docker ps -aq)
+            # sudo docker rm $(sudo docker ps -aq)
+            sudo docker stop app-1
+            sudo docker rm app-1
             sudo docker rmi $(sudo docker images -q)
             sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
-            sudo docker run -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
+            sudo docker run --name app-1 -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
           
         
 
