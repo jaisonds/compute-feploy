@@ -44,9 +44,15 @@
 
 name: Build and Deploy to Cloud Run
 
-on:
+# on:
+#   push:
+#     branches: [ "master" ]
+
+on:  
   push:
-    branches: [ "master" ]
+  pull_request:
+    branches:
+      - master
 
 env:
   PROJECT_ID: prj-airindia-poc-01 # TODO: update Google Cloud project id
