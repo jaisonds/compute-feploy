@@ -58,11 +58,11 @@ jobs:
 
       - name: Build and Push Container
         run: |-
-          if [[ -n $(git diff --name-only "${{ github.sha }}^..${{ github.sha }}" -- 'test1/') ]]; then
-            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./test1
-            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
-          elif [[ -n $(git diff --name-only "${{ github.sha }}^..${{ github.sha }}" -- 'test2/') ]]; then
-            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}" ./test2
-            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}"
+          if [[ -n $(git diff --name-only HEAD^ -- 'test1/') ]]; then
+            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:latest" ./test1
+            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:latest"
+          elif [[ -n $(git diff --name-only HEAD^ -- 'test2/') ]]; then
+            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:latest" ./test2
+            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:latest"
           fi
 
