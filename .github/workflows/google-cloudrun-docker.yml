@@ -5,6 +5,7 @@ on:
     paths:
       - 'test1/**'
       - 'test2/**'
+      - '/**' 
   pull_request:
     branches:
       - master
