@@ -43,6 +43,9 @@ jobs:
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
+      - name: Debug step
+        run: echo "Build step triggered!"
+
       - name: Build and Push Container (test1 or test2)
         if: startsWith(github.event_path, 'test1/') || startsWith(github.event_path, 'test2/')
         run: |-
