@@ -1,15 +1,28 @@
 name: Build and Deploy to Cloud Run
 
+# on:
+#   push:
+#     paths:
+#       - 'test1/**'
+#       - 'test2/**'
+#   pull_request:
+#     branches:
+#       - master
+
 on:
   push:
-    branches: [ "master" ]
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
     paths:
-      - 'test1/**'  # Trigger on changes within test1 directory and subdirectories
-      - 'test2/**'  # Trigger on changes within test2 directory and subdirectories
+      - 'test1/**'
+      - 'test2/**'
 
 env:
   PROJECT_ID: prj-airindia-poc-01 # TODO: update Google Cloud project id
-  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
+  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
   REGION: asia-south1 # TODO: update Cloud Run service region
 
 jobs:
@@ -52,7 +65,7 @@ jobs:
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      # Optional conditional build step (comment out if not needed)
+  # ** Indentation fixed here (assuming the issue is indentation) **
       - name: Check for changes in test1 or test2
         run: |
           git diff --name-only HEAD^ HEAD | grep -E "(test1|test2)/" > changed_files.txt
@@ -67,4 +80,3 @@ jobs:
           docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./test1
           docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
 
-          # Repeat for test2 if needed, adjusting paths and image tags accordingly
