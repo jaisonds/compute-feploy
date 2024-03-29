@@ -16,14 +16,13 @@ env:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
-    
+  
     # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
       id-token: 'write'
-    
+  
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,37 +36,19 @@ jobs:
           service_account: 'sql-poc@prj-airindia-poc-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
           access_token_lifetime: '300s'
 
-
-
-######## working yaml################
-      # NOTE: Alternative option - authentication via credentials json
-
-      ### - id: "auth"
-      #   uses: google-github-actions/auth@v1.1.1
-      #   with:
-      #     credentials_json: "${{ secrets.SA }}"
-
-      ### Setup gcloud CLI/SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
-      # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
-
-      ###working suhas
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Build and Push Container
-        if: startsWith(github.event_path, 'test1/')
+      - name: Build and Push Container (test1 or test2)
+        if: startsWith(github.event_path, 'test1/') || startsWith(github.event_path, 'test2/')
         run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
+          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}" ./
+          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}"
 
-      - name: Build and Push Container
-        if: startsWith(github.event_path, 'test2/')
-        run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}"
+
 
       # # # END - Docker auth and build
 
