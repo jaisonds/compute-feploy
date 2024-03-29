@@ -45,7 +45,7 @@ jobs:
       - name: Build and Push Container (test1 or test2)
         if: startsWith(github.event_path, 'test1/') || startsWith(github.event_path, 'test2/')
         run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}" ./
+          docker build --no-cache -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}" ./
           docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}"
 
 
