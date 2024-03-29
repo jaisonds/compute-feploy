@@ -117,8 +117,8 @@ jobs:
           zone: 'asia-south1-c'
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
           command: |
-            sudo docker stop $(sudo docker ps -aq)
-            sudo docker rm $(sudo docker ps -aq)
+            # sudo docker stop $(sudo docker ps -aq)
+            # sudo docker rm $(sudo docker ps -aq)
             # sudo docker stop app-1
             # sudo docker rm app-1
             # sudo docker rmi $(sudo docker images -q)
