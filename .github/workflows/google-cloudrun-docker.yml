@@ -2,27 +2,31 @@ name: Build and Deploy to Cloud Run
 
 on:
   push:
+    branches:
+    - master
+    paths:
+      - 'test1/**' # Trigger only when changes are made in test1 folder
+      - 'test2/**' # Trigger only when changes are made in test2 folder
+  pull_request:
+    branches:
+    - master
     paths:
       - 'test1/**'
       - 'test2/**'
-  pull_request:
-    branches:
-      - master
 
 env:
-  PROJECT_ID: prj-airindia-poc-01 # TODO: update Google Cloud project id
-  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
-  REGION: asia-south1 # TODO: update Cloud Run service region
+  PROJECT_ID: prj-airindia-poc-01
+  GAR_LOCATION: asia-south1
+  REGION: asia-south1
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
-    # Add 'id-token' with the intended permissions for workload identity federation
+
     permissions:
       contents: 'read'
       id-token: 'write'
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,8 +36,8 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
-          workload_identity_provider: 'projects/13579727091/locations/global/workloadIdentityPools/github-wif-pool/providers/githubwif' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: 'sql-poc@prj-airindia-poc-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+          workload_identity_provider: 'projects/13579727091/locations/global/workloadIdentityPools/github-wif-pool/providers/githubwif'
+          service_account: 'sql-poc@prj-airindia-poc-01.iam.gserviceaccount.com'
           access_token_lifetime: '300s'
 
       - name: Set up Cloud SDK
@@ -41,16 +45,13 @@ jobs:
 
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
-        
-      - name: Build and Push Container
-        if: path == 'test1/'  # Check for path existence
-        run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
-      
-      - name: Build and Push Container
-        if: path == 'test2/'  # Check for path existence
-        run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}"
 
+      - name: Build and Push Container
+        run: |-
+          if [ -d "test1" ]; then
+            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./test1
+            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
+          elif [ -d "test2" ]; then
+            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}" ./test2
+            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}"
+          fi
