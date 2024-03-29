@@ -1,42 +1,29 @@
-name: Build and Deploy to Cloud Run
 
-# on:
-#   push:
-#     branches:
-#     - master
-#     paths:
-#       - 'test1/**' # Trigger only when changes are made in test1 folder
-#       - 'test2/**' # Trigger only when changes are made in test2 folder
-#   pull_request:
-#     branches:
-#     - master
-#     paths:
-#       - 'test1/**'
-#       - 'test2/**'
+name: Build and Deploy to VM
 
 on:
   push:
-    paths:
-      - 'test1/**' # Trigger only when changes are made in test1 folder
-      - 'test2/**' # Trigger only when changes are made in test2 folder
+    branches:
+    - master
   pull_request:
-    paths:
-      - 'test1/**'
-      - 'test2/**'
+    branches:
+    - master
 
 env:
-  PROJECT_ID: prj-airindia-poc-01
-  GAR_LOCATION: asia-south1
-  REGION: asia-south1
+  PROJECT_ID: prj-stage-shared-services-01 # Shared service project
+  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
+  REGION: asia-south1 # TODO: update Cloud Run service region
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
 
+    runs-on: ubuntu-latest
+    
+    # Add 'id-token' with the intended permissions for workload identity federation
     permissions:
       contents: 'read'
       id-token: 'write'
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,23 +33,40 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
-          workload_identity_provider: 'projects/13579727091/locations/global/workloadIdentityPools/github-wif-pool/providers/githubwif'
-          service_account: 'sql-poc@prj-airindia-poc-01.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/1080453289532/locations/global/workloadIdentityPools/wip-dataneuron/providers/dataneuron-wip' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: 'sa-workload-identity@prj-stage-dataneuron-srv-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
           access_token_lifetime: '300s'
+          
 
+      ### Setup gcloud CLI/SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
+
+      # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
 
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
       - name: Build and Push Container
         run: |-
-          if [[ -n $(git diff --name-only HEAD^ -- 'test1/') ]]; then
-            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:latest" ./test1
-            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:latest"
-          elif [[ -n $(git diff --name-only HEAD^ -- 'test2/') ]]; then
-            docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:latest" ./test2
-            docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:latest"
-          fi
+          docker build -t "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest" ./
+          docker push "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest"
 
+      # # # END - Docker auth and build
+
+      - name: Deploy to VM
+        id: 'compute-ssh'
+        uses: 'google-github-actions/ssh-compute@v1'
+        with:
+          instance_name: 'docker-cicd'  ## VM Name
+          zone: 'asia-south1-c'  ## VM location
+          ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
+          command: "path to your docker cd script file"
+          
+        
+
+      # # If required, use the Cloud Run url output in later steps
+      - name: Show Output
+        run: |-
+          echo '${{ steps.compute-ssh.outputs.stdout }}'
+          echo '${{ steps.compute-ssh.outputs.stderr }}'
