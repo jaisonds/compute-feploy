@@ -2,21 +2,19 @@ name: Build and Deploy to Cloud Run
 
 on:
   push:
+    branches: [ "master" ]
     paths:
-      - 'test1/**'
-      - 'test2/**'
-      - '/**' 
-  pull_request:
-    branches:
-      - master
+      - 'test1/**'  # Trigger on changes within test1 directory and subdirectories
+      - 'test2/**'  # Trigger on changes within test2 directory and subdirectories
 
 env:
   PROJECT_ID: prj-airindia-poc-01 # TODO: update Google Cloud project id
-  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
+  GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
   REGION: asia-south1 # TODO: update Cloud Run service region
 
 jobs:
   deploy:
+
     runs-on: ubuntu-latest
   
     # Add 'id-token' with the intended permissions for workload identity federation
@@ -28,15 +26,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            test1:
-              - 'test1/**'   
-            test2:
-              - 'test2/**'   
-
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v2'
@@ -46,49 +35,36 @@ jobs:
           service_account: 'sql-poc@prj-airindia-poc-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
           access_token_lifetime: '300s'
 
+######## working yaml################
+
+      ### - id: "auth"  # Commented out as using workload identity federation
+      #   uses: google-github-actions/auth@v1.1.1
+      #   with:
+      #     credentials_json: "${{ secrets.SA }}"
+
+      ### Setup gcloud CLI/SDK
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
+      # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
+
+      ###working suhas
       - name: Authorize Docker push
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Debug step
-        run: echo "Build step triggered!"
+      # Optional conditional build step (comment out if not needed)
+      - name: Check for changes in test1 or test2
+        run: |
+          git diff --name-only HEAD^ HEAD | grep -E "(test1|test2)/" > changed_files.txt
+          if [ -z "$(cat changed_files.txt)" ]; then
+            exit 0  # No changes in test1 or test2, skip build steps
+          fi
 
-      - name: Build and Push Container (test1 or test2)
-        if: startsWith(github.event_path, 'test1/') || startsWith(github.event_path, 'test2/')
+      - name: Build and Push Container (if changes in test1 or test2)
+        if: steps.check-for-changes.outputs == 1  # Check script exit code (optional)
         run: |-
-          docker build --no-cache -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}" ./
-          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/${{ github.event.repository.name }}:${{ github.sha }}"
+          # Build and push for test1 (modify paths and image tags as needed)
+          docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./test1
+          docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
 
-
-
-      # # # END - Docker auth and build
-
-      # - name: Deploy to VM
-      #   id: 'compute-ssh'
-      #   uses: 'google-github-actions/ssh-compute@v1'
-      #   with:
-      #     instance_name: 'docker-cicd'
-      #     zone: 'asia-south1-c'
-      #     ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-      #     command: |
-      #       # sudo docker stop $(sudo docker ps -aq)
-      #       # sudo docker rm $(sudo docker ps -aq)
-      #       sudo docker stop app-1
-      #       sudo docker rm app-1
-      #       sudo docker rmi $(sudo docker images -q)
-      #       sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
-      #       sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}
-      #       sudo docker pull asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test3:${{ github.sha }}
-      #       sudo docker run --name app-1 -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test:${{ github.sha }}
-      #       sudo docker run --name app-2 -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}
-      #       sudo docker run --name app-3 -d -p 8080:8080 asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test3:${{ github.sha }}
-          
-        
-
-      # # # If required, use the Cloud Run url output in later steps
-      # - name: Show Output
-      #   run: |-
-      #     echo '${{ steps.compute-ssh.outputs.stdout }}'
-      #     echo '${{ steps.compute-ssh.outputs.stderr }}' 
+          # Repeat for test2 if needed, adjusting paths and image tags accordingly
