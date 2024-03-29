@@ -43,13 +43,14 @@ jobs:
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
         
       - name: Build and Push Container
-        if: startsWith(github.event_path, 'test1/')
+        if: path == 'test1/'  # Check for path existence
         run: |-
           docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}" ./
           docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test1:${{ github.sha }}"
-
+      
       - name: Build and Push Container
-        if: startsWith(github.event_path, 'test2/')
+        if: path == 'test2/'  # Check for path existence
         run: |-
           docker build -t "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}" ./
           docker push "asia-south1-docker.pkg.dev/prj-airindia-poc-01/cloud-run-source-deploy/test2:${{ github.sha }}"
+
