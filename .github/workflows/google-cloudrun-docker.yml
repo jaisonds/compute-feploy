@@ -10,7 +10,7 @@ on:
     - master
 
 env:
-  PROJECT_ID: prj-stage-shared-services-01 # Shared service project
+  PROJECT_ID: prj-airindia-poc-01 # Shared service project
   GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
   REGION: asia-south1 # TODO: update Cloud Run service region
 
@@ -33,8 +33,8 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           token_format: 'access_token'
-          workload_identity_provider: 'projects/1080453289532/locations/global/workloadIdentityPools/wip-dataneuron/providers/dataneuron-wip' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: 'sa-workload-identity@prj-stage-dataneuron-srv-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+          workload_identity_provider: 'projects/13579727091/locations/global/workloadIdentityPools/cloudrun-githubactions/providers/cloudrun-githubactions' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+          service_account: 'sa-cloudrun-githubactions@prj-airindia-poc-01.iam.gserviceaccount.com' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
           access_token_lifetime: '300s'
           
 
