@@ -12,7 +12,7 @@ on:
 env:
   PROJECT_ID: prj-airindia-poc-01 # Shared service project
   GAR_LOCATION: asia-south1  # TODO: update Artifact Registry location
-  REGION: asia-south1 # TODO: update Cloud Run service region
+  REGION: asia-south1 # TODO: update Cloud Run service region 
 
 jobs:
   deploy:
