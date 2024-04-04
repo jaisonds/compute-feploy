@@ -44,13 +44,13 @@ jobs:
 
       # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
 
-      - name: Authorize Docker push
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+      # - name: Authorize Docker push
+      #   run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
 
-      - name: Build and Push Container
-        run: |-
-          docker build -t "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest" ./
-          docker push "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest"
+      # - name: Build and Push Container
+      #   run: |-
+      #     docker build -t "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest" ./
+      #     docker push "asia-south1-docker.pkg.dev/prj-stage-shared-services-01/repo-stage-as1/ds-alp-db-aw-test-flask-app:latest"
 
       # # # END - Docker auth and build
 
@@ -58,10 +58,10 @@ jobs:
         id: 'compute-ssh'
         uses: 'google-github-actions/ssh-compute@v1'
         with:
-          instance_name: 'docker-cicd'  ## VM Name
+          instance_name: 'githubactions'  ## VM Name
           zone: 'asia-south1-c'  ## VM location
           ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-          command: "path to your docker cd script file"
+          command: "echo HELLO WORLD"
           
         
 
